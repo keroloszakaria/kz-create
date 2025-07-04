@@ -1,0 +1,21 @@
+{
+  "name": "kz-create",
+  "version": "1.0.0",
+  "description": "Vue CRUD scaffolding CLI tool",
+  "bin": {
+    "kz-create": "./bin/index.js"
+  },
+  "type": "module",
+  "keywords": [
+    "vue",
+    "cli",
+    "scaffold",
+    "crud",
+    "kz"
+  ],
+  "author": "kerolos zakaria",
+  "license": "MIT",
+  "dependencies": {
+    "inquirer": "^9.3.7"
+  }
+}
