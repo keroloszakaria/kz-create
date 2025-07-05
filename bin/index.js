@@ -4,6 +4,10 @@ import fs from "fs";
 import path from "path";
 import inquirer from "inquirer";
 import { fileURLToPath } from "url";
+import {
+  generateSchemaFromPayload,
+  generateBasicSchema,
+} from "./utils/schemaGenerator.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,9 +15,7 @@ const __dirname = path.dirname(__filename);
 const TEMPLATE_FOLDER = path.join(__dirname, "..", "templates");
 const TARGET_FOLDER = path.join(process.cwd(), "src", "modules");
 
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 function parseInputToObjects(input) {
   return input
@@ -22,6 +24,9 @@ function parseInputToObjects(input) {
     .filter((s) => s.length > 0)
     .map((s) => ({ name: s }));
 }
+
+// Convert objects array to simple strings array for schema generator
+const extractNames = (objectsArray) => objectsArray.map((obj) => obj.name);
 
 function applyPlaceholders(content, crudName, helpModels, helpEnums) {
   const moduleCapital = capitalize(crudName);
@@ -85,15 +90,17 @@ function updateRouter(modulePath, crudName) {
   const routerPath = path.join(modulePath, "router");
   const routerFile = path.join(routerPath, "index.js");
 
+  const routePath =
+    crudName === "index" ? `/${path.basename(modulePath)}` : `/${crudName}`;
   const routeEntry = `{
-    path: '${crudName === "index" ? "" : crudName}',
+    path: '${routePath}',
     name: '${crudName === "index" ? path.basename(modulePath) : crudName}',
     component: () => import('@/modules/${path.basename(
       modulePath
     )}/views/${crudName}.vue'),
     meta: {
       is_searchable: true,
-      name: ${crudName}
+      name: '${crudName}'
     },
   }`;
 
@@ -106,10 +113,7 @@ function updateRouter(modulePath, crudName) {
 
     if (!routerContent.includes("export default")) {
       routerContent = `export default [\n  ${routeEntry}\n];\n`;
-    } else if (
-      !routerContent.includes(`name: '${crudName}'`) &&
-      !routerContent.includes(`name: '${path.basename(modulePath)}'`)
-    ) {
+    } else if (!routerContent.includes(`name: '${crudName}'`)) {
       routerContent = routerContent.replace(
         /export default\s*\[/,
         `export default [\n  ${routeEntry},`
@@ -133,14 +137,13 @@ async function createCrud() {
   let crudName = moduleName;
 
   const moduleExists = fs.existsSync(modulePath);
-
   let multipleCruds = false;
 
   if (moduleExists) {
     const { hasMultiple } = await inquirer.prompt({
       type: "confirm",
       name: "hasMultiple",
-      message: `Module "${moduleName}" already exists. Do you want to add a new CRUD to it?`,
+      message: `Module \"${moduleName}\" already exists. Do you want to add a new CRUD to it?`,
       default: true,
     });
 
@@ -149,7 +152,7 @@ async function createCrud() {
     if (multipleCruds) {
       const { newCrudName } = await inquirer.prompt({
         name: "newCrudName",
-        message: "Enter the new CRUD name (e.g., createInvoice):",
+        message: "Enter the CRUD name (e.g., createInvoice):",
       });
 
       crudName = newCrudName;
@@ -184,7 +187,7 @@ async function createCrud() {
     type: "list",
     name: "layoutType",
     message: "Choose layout type:",
-    choices: ["modal", "pages"],
+    choices: ["Modal", "Pages"],
   });
 
   const { helpModels } = await inquirer.prompt({
@@ -200,6 +203,44 @@ async function createCrud() {
   const helpModelsArray = parseInputToObjects(helpModels);
   const helpEnumsArray = parseInputToObjects(helpEnums);
 
+  const { wantsSchema } = await inquirer.prompt({
+    type: "confirm",
+    name: "wantsSchema",
+    message: "Do you want to auto-generate a form schema from payload?",
+    default: false,
+  });
+
+  // Create schema directory
+  const schemaDir = path.join(targetFolder, "schema");
+  if (!fs.existsSync(schemaDir)) fs.mkdirSync(schemaDir, { recursive: true });
+
+  const schemaPath = path.join(schemaDir, `${crudName}.js`);
+
+  if (wantsSchema) {
+    const { payloadText } = await inquirer.prompt({
+      type: "input",
+      name: "payloadText",
+      message: "Paste your payload in format key:type:",
+    });
+
+    // Convert objects to simple string arrays for the schema generator
+    const helpModelsNames = extractNames(helpModelsArray);
+    const helpEnumsNames = extractNames(helpEnumsArray);
+
+    const generatedSchemaCode = generateSchemaFromPayload(
+      payloadText,
+      crudName,
+      helpModelsNames,
+      helpEnumsNames
+    );
+
+    fs.writeFileSync(schemaPath, generatedSchemaCode, "utf8");
+  } else {
+    // Generate basic schema with empty array
+    const basicSchemaCode = generateBasicSchema(crudName);
+    fs.writeFileSync(schemaPath, basicSchemaCode, "utf8");
+  }
+
   const selectedTemplate = path.join(TEMPLATE_FOLDER, layoutType);
 
   copyFolderRecursiveSync(
@@ -213,7 +254,7 @@ async function createCrud() {
   updateRouter(modulePath, crudName);
 
   console.log(
-    `✅ CRUD "${crudName}" created successfully in module "${moduleName}" (${layoutType})`
+    `✅ CRUD \"${crudName}\" created successfully in module \"${moduleName}\" (${layoutType})`
   );
 }
 

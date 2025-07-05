@@ -5,6 +5,10 @@
   "bin": {
     "kz-create": "./bin/index.js"
   },
+  "scripts": {
+    "clean": "rm -rf ./src",
+    "test": "jest"
+  },
   "type": "module",
   "keywords": [
     "vue",
@@ -16,6 +20,7 @@
   "author": "kerolos zakaria",
   "license": "MIT",
   "dependencies": {
+    
     "inquirer": "^9.3.7"
   }
 }
