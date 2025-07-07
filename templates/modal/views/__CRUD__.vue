@@ -6,7 +6,7 @@
           :icon="icons.plus"
           @click="addRow"
           iconPosition="right"
-          :title="$t('add_item', { item: $t('__CRUD__') })"
+          :title="$t('add_item', { item: $t('__CRUD_UNDERSCORE__') })"
           type="primary teleport"
         />
       </div>
@@ -65,9 +65,9 @@ const isCreate = ref(false);
 const { t } = useI18n();
 
 const modalTitle = computed(() => {
-  if (isView.value) return t("view_item", { item: t("__CRUD__") });
-  if (isCreate.value) return t("add_item", { item: t("__CRUD__") });
-  else return t("edit_item", { item: t("__CRUD__") });
+  if (isView.value) return t("view_item", { item: t("__CRUD_UNDERSCORE__") });
+  if (isCreate.value) return t("add_item", { item: t("__CRUD_UNDERSCORE__") });
+  else return t("edit_item", { item: t("__CRUD_UNDERSCORE__") });
 });
 
 const { setBreadcrumbs } = useBreadCrumbStore();
@@ -87,7 +87,7 @@ const headers = ref([
 
 setBreadcrumbs([
   { title: t("dashboard"), disabled: false, to: "/" },
-  { title: t("__CRUD__"), disabled: true, to: "" },
+  { title: t("__CRUD_UNDERSCORE__"), disabled: true, to: "" },
 ]);
 
 __HELP_ENUMS__;
@@ -128,9 +128,8 @@ const viewRow = (item) =>
 const submitForm = async (data) => {
   const payload = transformSchemaToObject(data);
   if (!isCreate.value) payload["id"] = __CRUD__Store.selectedItem.id;
-  const { code, errors } = await __CRUD__Store[
-    isCreate.value ? "createRow" : "updateRow"
-  ](payload);
+  const { code, errors } =
+    await __CRUD__Store[isCreate.value ? "createRow" : "updateRow"](payload);
   if (code == 200) isShowModal.value = false;
   else handleErrors(schema.value, errors);
 };
@@ -149,7 +148,7 @@ const deleteRow = () => {
 };
 
 onMounted(async () => {
-  __HELP_PROMISES__;
+  __HELP_PROMISES__
 });
 </script>
 

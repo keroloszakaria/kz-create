@@ -30,7 +30,6 @@ export function generateSchemaFromPayload(
     otp: "createOtpInput",
     captcha: "createCaptchaField",
     editor: "createEditorField",
-    wysiwyg: "createEditorField",
   };
 
   const usedFields = new Set();
@@ -55,6 +54,9 @@ export function generateSchemaFromPayload(
     const isEditor = type === "createEditorField";
     const isButton = type === "createButton";
 
+    // Check if key ends with "ids" for multiple select
+    const isMultipleSelect = isSelect && key.endsWith("ids");
+
     // Find matching model or enum for select fields
     let matchType = null;
     let matchName = null;
@@ -65,7 +67,8 @@ export function generateSchemaFromPayload(
         const modelName = m.includes(".") ? m.split(".").pop() : m;
         return (
           key.includes(modelName.slice(0, -1)) ||
-          key.replace("_id", "") === modelName.slice(0, -1)
+          key.replace("_id", "") === modelName.slice(0, -1) ||
+          key.replace("_ids", "") === modelName.slice(0, -1)
         );
       });
 
@@ -80,6 +83,7 @@ export function generateSchemaFromPayload(
             key === enumName ||
             key.includes(enumName) ||
             key.replace("_id", "") === enumName ||
+            key.replace("_ids", "") === enumName ||
             // Additional check for exact match
             enumName === key
           );
@@ -97,8 +101,9 @@ export function generateSchemaFromPayload(
 
     // Rule 1: If has dot, replace with underscore
     if (key.includes(".")) label = key.replace(/\./g, "_");
-    // Rule 2: If ends with _id, remove it
+    // Rule 2: If ends with _id or _ids, remove it
     else if (key.endsWith("_id")) label = key.replace("_id", "");
+    else if (key.endsWith("_ids")) label = key.replace("_ids", "");
     // Rule 3: If has underscore, keep as is
     else if (key.includes("_")) label = key;
 
@@ -109,13 +114,21 @@ export function generateSchemaFromPayload(
     let extraProps = "";
 
     // Set default value based on field type
-    if (isSelect || isComboBox || isRadio) valueLine = "value: null,";
-    else if (isCheckbox) valueLine = "value: false,";
-    else if (isNumber) valueLine = "value: 0,";
-    else if (isDateTime) valueLine = "value: null,";
-    else if (isOtp) valueLine = "value: '',";
-    else if (isButton) valueLine = ""; // Buttons don't have values
-    else valueLine = 'value: "",';
+    if (isSelect || isComboBox || isRadio) {
+      valueLine = isMultipleSelect ? "value: []," : "value: null,";
+    } else if (isCheckbox) {
+      valueLine = "value: false,";
+    } else if (isNumber) {
+      valueLine = "value: 0,";
+    } else if (isDateTime) {
+      valueLine = "value: null,";
+    } else if (isOtp) {
+      valueLine = "value: '',";
+    } else if (isButton) {
+      valueLine = ""; // Buttons don't have values
+    } else {
+      valueLine = 'value: "",';
+    }
 
     // Handle select field with model match
     if (isSelect && matchType === "model") {
@@ -126,6 +139,7 @@ export function generateSchemaFromPayload(
 
       // For model matches, override label with the base key
       if (key.endsWith("_id")) label = key.replace("_id", "");
+      else if (key.endsWith("_ids")) label = key.replace("_ids", "");
 
       updateKeyLine = `updateKey: "${baseKey}.id",`;
 
@@ -152,16 +166,16 @@ export function generateSchemaFromPayload(
       optionsLine = `options: computed(() => enumsStore.state["${optionsKey}"]),`;
       itemLines = `itemTitle: "label",
       itemValue: "value",`;
-    } else if (isSelect && key.endsWith("_id")) {
-      // Handle select fields that end with _id but don't match models/enums
-      const baseKey = key.replace("_id", "");
+    } else if (isSelect && (key.endsWith("_id") || key.endsWith("_ids"))) {
+      // Handle select fields that end with _id or _ids but don't match models/enums
+      const baseKey = key.replace("_id", "").replace("_ids", "");
       label = baseKey;
       updateKeyLine = `updateKey: "${baseKey}.id",`;
       optionsLine = `options: computed(() => enumsStore.state["${baseKey}s"]),`;
       itemLines = `itemTitle: "title",
       itemValue: "id",`;
     } else if (isSelect) {
-      // Handle select fields that don't end with _id and don't match models/enums
+      // Handle select fields that don't end with _id/_ids and don't match models/enums
       // This is for cases like employee_type:select
       label = key;
       optionsLine = `options: computed(() => enumsStore.state["${key}"]),`;
@@ -203,6 +217,13 @@ export function generateSchemaFromPayload(
     else if (isCaptcha) extraProps = `length: 5,`;
     else if (isEditor) extraProps = `direction: "ltr",`;
     else if (isButton) extraProps = `click: () => {},`;
+
+    // Add isMultiple for select fields ending with "ids"
+    if (isMultipleSelect) {
+      extraProps = extraProps
+        ? `${extraProps}\n      isMultiple: true,`
+        : `isMultiple: true,`;
+    }
 
     // Build the field configuration
     const fieldConfig = [];

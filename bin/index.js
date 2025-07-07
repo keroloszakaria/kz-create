@@ -4,10 +4,20 @@ import fs from "fs";
 import path from "path";
 import inquirer from "inquirer";
 import { fileURLToPath } from "url";
+import parsePayloadFormat from "./utils/handlePayloadFormat.js";
+import updateRouter from "./utils/handleRouter.js";
 import {
   generateSchemaFromPayload,
   generateBasicSchema,
 } from "./utils/schemaGenerator.js";
+
+import {
+  toKebabCase,
+  toCamelCase,
+  capitalize,
+  parseInputToObjects,
+  extractNames,
+} from "./utils/helper.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,21 +25,11 @@ const __dirname = path.dirname(__filename);
 const TEMPLATE_FOLDER = path.join(__dirname, "..", "templates");
 const TARGET_FOLDER = path.join(process.cwd(), "src", "modules");
 
-const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
-
-function parseInputToObjects(input) {
-  return input
-    .split(",")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0)
-    .map((s) => ({ name: s }));
-}
-
-// Convert objects array to simple strings array for schema generator
-const extractNames = (objectsArray) => objectsArray.map((obj) => obj.name);
-
 function applyPlaceholders(content, crudName, helpModels, helpEnums) {
-  const moduleCapital = capitalize(crudName);
+  const crudKebab = toKebabCase(crudName);
+  const crudCamel = toCamelCase(crudName);
+  const crudUnderscore = crudKebab.replace(/-/g, "_");
+  const moduleCapital = capitalize(crudCamel);
 
   const modelsString = helpModels.length
     ? `const tables = ${JSON.stringify(helpModels, null, 2)};\n`
@@ -48,7 +48,9 @@ function applyPlaceholders(content, crudName, helpModels, helpEnums) {
     : "";
 
   return content
-    .replace(/__CRUD__/g, crudName)
+    .replace(/__CRUD__/g, crudCamel)
+    .replace(/__CRUD_KEBAB__/g, crudKebab)
+    .replace(/__CRUD_UNDERSCORE__/g, crudUnderscore)
     .replace(/__CRUD_CAPITAL__/g, moduleCapital)
     .replace(/__HELP_MODELS__/g, modelsString.trim())
     .replace(/__HELP_ENUMS__/g, enumsString.trim())
@@ -67,7 +69,8 @@ function copyFolderRecursiveSync(
   const files = fs.readdirSync(source);
   files.forEach((file) => {
     const curSource = path.join(source, file);
-    const replacedFileName = file.replace(/__CRUD__/g, crudName);
+    const crudCamel = toCamelCase(crudName);
+    const replacedFileName = file.replace(/__CRUD__/g, crudCamel);
     const curTarget = path.join(target, replacedFileName);
 
     if (fs.lstatSync(curSource).isDirectory()) {
@@ -84,46 +87,6 @@ function copyFolderRecursiveSync(
       fs.writeFileSync(curTarget, content, "utf8");
     }
   });
-}
-
-function updateRouter(modulePath, crudName) {
-  const routerPath = path.join(modulePath, "router");
-  const routerFile = path.join(routerPath, "index.js");
-
-  const routePath =
-    crudName === "index" ? `/${path.basename(modulePath)}` : `/${crudName}`;
-  const routeEntry = `{
-    path: '${routePath}',
-    name: '${crudName === "index" ? path.basename(modulePath) : crudName}',
-    component: () => import('@/modules/${path.basename(
-      modulePath
-    )}/views/${crudName}.vue'),
-    meta: {
-      is_searchable: true,
-      name: '${crudName}'
-    },
-  }`;
-
-  if (!fs.existsSync(routerPath)) fs.mkdirSync(routerPath, { recursive: true });
-
-  let routerContent = "";
-
-  if (fs.existsSync(routerFile)) {
-    routerContent = fs.readFileSync(routerFile, "utf8").trim();
-
-    if (!routerContent.includes("export default")) {
-      routerContent = `export default [\n  ${routeEntry}\n];\n`;
-    } else if (!routerContent.includes(`name: '${crudName}'`)) {
-      routerContent = routerContent.replace(
-        /export default\s*\[/,
-        `export default [\n  ${routeEntry},`
-      );
-    }
-  } else {
-    routerContent = `export default [\n  ${routeEntry}\n];\n`;
-  }
-
-  fs.writeFileSync(routerFile, routerContent, "utf8");
 }
 
 async function createCrud() {
@@ -143,7 +106,7 @@ async function createCrud() {
     const { hasMultiple } = await inquirer.prompt({
       type: "confirm",
       name: "hasMultiple",
-      message: `Module \"${moduleName}\" already exists. Do you want to add a new CRUD to it?`,
+      message: `Module "${moduleName}" already exists. Do you want to add a new CRUD to it?`,
       default: true,
     });
 
@@ -152,7 +115,7 @@ async function createCrud() {
     if (multipleCruds) {
       const { newCrudName } = await inquirer.prompt({
         name: "newCrudName",
-        message: "Enter the CRUD name (e.g., createInvoice):",
+        message: "Enter the CRUD name (e.g., createInvoice, feature-groups):",
       });
 
       crudName = newCrudName;
@@ -210,34 +173,64 @@ async function createCrud() {
     default: false,
   });
 
-  // Create schema directory
   const schemaDir = path.join(targetFolder, "schema");
   if (!fs.existsSync(schemaDir)) fs.mkdirSync(schemaDir, { recursive: true });
 
-  const schemaPath = path.join(schemaDir, `${crudName}.js`);
+  const crudCamel = toCamelCase(crudName);
+  const schemaPath = path.join(schemaDir, `${crudCamel}.js`);
 
   if (wantsSchema) {
+    console.log(
+      "\n📝 Paste your payload (key:value) below. Press Enter twice or type 'END':\n"
+    );
+
     const { payloadText } = await inquirer.prompt({
-      type: "input",
+      type: "editor",
       name: "payloadText",
-      message: "Paste your payload in format key:type:",
+      message: "Paste your payload:",
+      default: `
+          title[ar]:منتج جديد
+          title[en]:New Product
+          description[ar]:textarea
+          description[en]:textarea
+          price:100
+          status:true
+          icon:image
+          manual:file
+          category_id:1
+          tag_ids:[1,2,3]
+          rating:4.5
+          launch_date:2023-05-20
+          launch_time:14:30
+          publish_at:datetime
+          phone:phone
+          custom_field:text
+          password:password
+          role:select
+          accept_terms:false
+          otp_code:otp
+          captcha_field:captcha
+          editor_content:editor
+        `,
     });
 
-    // Convert objects to simple string arrays for the schema generator
+    const convertedPayload = parsePayloadFormat(payloadText);
+    console.log("\n🔄 Converted payload:");
+    console.log(convertedPayload);
+
     const helpModelsNames = extractNames(helpModelsArray);
     const helpEnumsNames = extractNames(helpEnumsArray);
 
     const generatedSchemaCode = generateSchemaFromPayload(
-      payloadText,
-      crudName,
+      convertedPayload,
+      crudCamel,
       helpModelsNames,
       helpEnumsNames
     );
 
     fs.writeFileSync(schemaPath, generatedSchemaCode, "utf8");
   } else {
-    // Generate basic schema with empty array
-    const basicSchemaCode = generateBasicSchema(crudName);
+    const basicSchemaCode = generateBasicSchema(crudCamel);
     fs.writeFileSync(schemaPath, basicSchemaCode, "utf8");
   }
 
@@ -250,11 +243,10 @@ async function createCrud() {
     helpModelsArray,
     helpEnumsArray
   );
-
   updateRouter(modulePath, crudName);
 
   console.log(
-    `✅ CRUD \"${crudName}\" created successfully in module \"${moduleName}\" (${layoutType})`
+    `✅ CRUD "${crudName}" created successfully in module "${moduleName}" (${layoutType})`
   );
 }
 

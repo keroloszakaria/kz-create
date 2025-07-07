@@ -5,7 +5,7 @@ import { objectToQueryString } from "@/utils/formDataHandler";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
-const MODULE = "__CRUD__";
+const MODULE = "__CRUD_KEBAB__";
 
 export const use__CRUD_CAPITAL__Store = defineStore(MODULE, () => {
   const isLoading = ref(false);
