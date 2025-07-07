@@ -1,5 +1,5 @@
 {
-  "name": "kz-create",
+  "name": "wakeb-starter-cli",
   "version": "1.0.0",
   "description": "Vue CRUD scaffolding CLI tool",
   "bin": {
@@ -14,10 +14,33 @@
     "cli",
     "scaffold",
     "crud",
+    "generator",
+    "vue3",
+    "vue2",
+    "vue",
+    "structure",
+    "template",
+    "project",
+    "structure-handler",
+    "CRUD-generator",
+    "module-handler",
+    "kz-tools",
     "kz"
   ],
-  "author": "kerolos zakaria",
+  "author": {
+    "name": "Kerolos Zakaria",
+    "email": "keroloszakaria2@gmail.com",
+    "url": "https://github.com/keroloszakaria"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keroloszakaria/kz-create.git"
+  },
+  "bugs": {
+    "url": "https://github.com/keroloszakaria/kz-create/issues"
+  },
+  "homepage": "https://github.com/keroloszakaria/kz-create#readme",
   "dependencies": {
     "inquirer": "^9.3.7"
   }
