@@ -26,6 +26,11 @@ switch (command) {
   case "add":
     addCommon();
     break;
+  case "add:module":
+    addModule();
+  case "add:component":
+    addComponent();
+    break;
   default:
     console.log(`❌ Unknown command: ${command}`);
     console.log('Run "wb help" for usage information.');
