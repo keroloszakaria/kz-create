@@ -1,9 +1,10 @@
 {
   "name": "wakeb-starter-cli",
-  "version": "1.0.0",
-  "description": "Vue CRUD scaffolding CLI tool",
+  "version": "1.0.1",
+  "description": "A powerful CLI tool for generating CRUD modules, common modules, and components with Vue 3 form schemas, featuring intelligent field detection and automatic schema generation",
+  "main": "bin/index.js",
   "bin": {
-    "kz-create": "./bin/index.js"
+    "wb": "./bin/index.js"
   },
   "scripts": {
     "clean": "rm -rf ./src"

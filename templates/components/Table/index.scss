@@ -1,0 +1,88 @@
+:deep() {
+  .v-table__wrapper {
+    margin-block: -1rem;
+    table {
+      border-collapse: separate;
+      border-spacing: 0 1rem;
+
+      thead {
+        background-color: #e6f1ef;
+        border-radius: 12px;
+        th {
+          border: none !important;
+          color: rgba(var(--v-theme-dark_bg), 1);
+          font-weight: 500;
+          font-size: 12px;
+        }
+      }
+
+      tbody {
+        tr {
+          border-radius: 12px;
+          overflow: hidden;
+          height: 64px;
+          td {
+            border: none !important;
+            background-color: rgba(var(--v-theme-dark_white), 1);
+            font-size: 12px;
+            font-weight: 500;
+            color: #47586e;
+            &:first-of-type {
+              border-start-start-radius: 12px;
+              border-end-start-radius: 12px;
+            }
+            &:last-of-type {
+              border-start-end-radius: 12px;
+              border-end-end-radius: 12px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .v-selection-control {
+    margin: 0 10px;
+    min-height: unset;
+    display: flex;
+    gap: 4px;
+    &__wrapper {
+      width: 18px;
+      height: 18px;
+    }
+    &__input {
+      width: 18px;
+      height: 18px;
+      i {
+        border: 2px solid rgba(var(--v-theme-dark_300), 1) !important;
+        border-radius: 5px !important;
+        font-size: 18px;
+        transition: 0.4s;
+        &::before {
+          content: unset !important;
+        }
+        &.mdi-checkbox-marked,
+        &.mdi-radiobox-marked {
+          background-color: rgba(var(--v-theme-primary), 1);
+          border: none !important;
+
+          &::after {
+            content: '';
+            display: block;
+            box-sizing: border-box;
+            position: absolute;
+            top: 0px;
+            left: 4px;
+            width: 5px;
+            height: 10px;
+            border-width: 0 2px 2px 0;
+            border-style: solid;
+            transform-origin: bottom left;
+            transform: rotate(45deg);
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "add_role": "إضافة دور",
+  "edit_role": "تعديل الدور",
+  "view_role": "عرض الدور",
+  "roles": "الأدوار",
+  "name": "الاسم",
+  "display_name": "اسم العرض",
+  "display_name_ar": "اسم العرض (عربى)",
+  "description_en": "وصف (انجليزى)",
+  "description_ar": "وصف (عربى)",
+  "active": "نشط",
+  "inactive": "متوقف",
+  "is_active": "هل نشط؟",
+  "consultation_department": "الإدارة المستفيدة",
+  "display_name_en": "اسم العرض (انجليزى)",
+  "no_user": "لا يوجد اعضاء",
+  "description": "الوصف"
+}

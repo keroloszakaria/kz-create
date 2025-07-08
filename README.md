@@ -1,288 +1,353 @@
-# KZ-Create CLI Tool
+# Wakeb CLI 🚀
 
-A powerful CLI tool for generating CRUD modules with Vue 3 form schemas, designed to accelerate development by automatically creating complete module structures with intelligent form field detection.
+A powerful Vue 3 development tool for rapid CRUD module generation, component management, and project scaffolding.
 
-## 🚀 Features
+## Features
 
-- **Interactive CLI Interface**: Step-by-step prompts for easy module creation
-- **Smart Schema Generation**: Automatically generates Vue 3 form schemas from payload data
-- **Multiple Layout Support**: Choose between Modal and Pages layouts
-- **Intelligent Field Detection**: Automatically detects field types from payload values
-- **Multi-language Support**: Built-in support for Arabic/English fields
-- **Router Integration**: Automatically updates router configurations
-- **Help Models & Enums**: Support for external data sources
-- **Template System**: Flexible template-based module generation
+- **🔧 CRUD Generation**: Auto-generate complete CRUD modules with forms, views, and routing
+- **📝 Smart Schema Generation**: Parse payload formats to auto-generate form schemas
+- **🧩 Component Management**: Add and manage reusable components
+- **📦 Module System**: Organize your Vue 3 project with modular architecture
+- **🎨 Template Support**: Modal and Pages layout templates
+- **🚀 Auto-routing**: Automatic router configuration
+- **📱 Sidebar Integration**: Auto-update navigation sidebar
+- **🔄 Interactive CLI**: User-friendly prompts and choices
 
-## 📦 Installation
+## Installation
 
-### Global Installation (Recommended)
+### Global Installation
 
 ```bash
-npm install -g kz-create
+npm install -g wakeb-cli
 ```
 
 ### Local Installation
 
 ```bash
-npm install kz-create
-npx kz-create
+npm install --save-dev wakeb-cli
 ```
 
-## 🎯 Quick Start
+## Usage
 
-Run the CLI tool in your project directory:
+### Quick Start
 
 ```bash
-kz-create
+wb
 ```
 
-The tool will guide you through:
+### Available Commands
 
-1. **Module Name**: Enter your module name (e.g., `user`, `product`)
-2. **Layout Type**: Choose between `Modal` or `Pages`
-3. **CRUD Configuration**: Handle existing modules or create new ones
-4. **Help Data**: Configure models and enums for dropdowns
-5. **Schema Generation**: Auto-generate forms from payload data
+| Command            | Description                                |
+| ------------------ | ------------------------------------------ |
+| `wb create`        | Create a new CRUD module with form schemas |
+| `wb add:module`    | Add a common reusable module               |
+| `wb add:component` | Add a common component                     |
+| `wb help`          | Show help message                          |
 
-## 🔧 Usage Examples
+## Commands in Detail
 
-### Basic Module Creation
+### 1. Create CRUD Module
 
 ```bash
-kz-create
+wb create
+```
+
+**What it does:**
+
+- Creates complete CRUD functionality (Create, Read, Update, Delete)
+- Generates form schemas from payload data
+- Sets up routing automatically
+- Integrates with sidebar navigation
+- Supports both Modal and Pages layouts
+
+**Interactive Process:**
+
+1. **Module Name**: Enter module name (e.g., `user`, `product`)
+2. **Multiple CRUDs**: Choose if module has multiple CRUD operations
+3. **Layout Type**: Select between Modal or Pages layout
+4. **Help Models**: Specify related models (comma-separated)
+5. **Help Enums**: Specify enums (comma-separated)
+6. **Schema Generation**: Auto-generate form schema from payload
+7. **Sidebar Integration**: Add to navigation sidebar
+
+**Example:**
+
+```bash
+wb create
 # Follow prompts:
-# Module name: user
+# Module name: users
 # Layout: Modal
-# Multiple CRUDs: No
-# Help models: categories, tags
-# Help enums: user_status, user_roles
+# Help models: roles, departments
+# Help enums: status, priority
 ```
 
-### Advanced Schema Generation
-
-When prompted for schema generation, you can paste payload data like:
-
-```javascript
-title[ar]: منتج جديد
-title[en]: New Product
-description[ar]: textarea
-description[en]: textarea
-price: 100
-status: true
-category_id: 1
-tag_ids: [1,2,3]
-launch_date: 2023-05-20
-phone: phone
-email: email
-```
-
-The tool will automatically generate:
-
-- **Field Types**: text, textarea, select, checkbox, date, etc.
-- **Validation Rules**: Based on field patterns
-- **Multi-language Fields**: Arabic/English support
-- **Relationship Fields**: Foreign key detection
-- **Special Fields**: Phone, email, datetime, etc.
-
-## 📁 Generated Structure
-
-```
-src/modules/your-module/
-├── locales/
-│   ├── ar.json
-│   └── en.json
-├── router/
-│   └── index.js
-├── schema/
-│   └── yourCrud.js
-├── stores/
-│   └── yourCrud.js
-└── views/
-    └── YourCrud.vue
-```
-
-## 🎨 Field Type Detection
-
-The tool automatically detects field types based on patterns:
-
-| Pattern      | Generated Type    | Example                   |
-| ------------ | ----------------- | ------------------------- |
-| `field[ar]`  | Text (Arabic)     | `title[ar]: منتج`         |
-| `field[en]`  | Text (English)    | `title[en]: Product`      |
-| `*_id`       | Select (Single)   | `category_id: 1`          |
-| `*_ids`      | Select (Multiple) | `tag_ids: [1,2,3]`        |
-| `true/false` | Checkbox          | `is_active: true`         |
-| `YYYY-MM-DD` | Date Picker       | `launch_date: 2023-05-20` |
-| `HH:MM`      | Time Picker       | `launch_time: 14:30`      |
-| `phone`      | Phone Input       | `phone: phone`            |
-| `email`      | Email Input       | `email: email`            |
-| `password`   | Password Input    | `password: password`      |
-| `textarea`   | Textarea          | `description: textarea`   |
-| `image/file` | File Upload       | `avatar: image`           |
-| `editor`     | Rich Text Editor  | `content: editor`         |
-| `number`     | Number Input      | `price: 100`              |
-
-## 🌐 Multi-language Support
-
-The tool supports multi-language fields:
-
-```javascript
-// Input
-title[ar]: منتج جديد
-title[en]: New Product
-
-// Generated Schema
-createTextField({
-  key: "title.ar",
-  label: "title_ar",
-  isArabicOnly: true,
-  // ... other props
-}),
-createTextField({
-  key: "title.en",
-  label: "title_en",
-  isEnglishOnly: true,
-  // ... other props
-})
-```
-
-## 🔗 Help Models & Enums
-
-Configure external data sources for dropdowns:
-
-### Help Models
+### 2. Add Module
 
 ```bash
-# Input: categories, tags, users
-# Generates select fields with:
-options: computed(() => enumsStore.state["categories"])
-itemTitle: "name"
-itemValue: "id"
+wb add:module
 ```
 
-### Help Enums
+**What it does:**
+
+- Adds pre-built common modules
+- Shows available vs installed modules
+- Supports batch selection
+- Handles overwrite confirmation
+
+**Features:**
+
+- ✅ Shows installed modules
+- ⬜ Shows available modules
+- 📦 Checkbox selection interface
+- ⚠️ Overwrite protection
+
+### 3. Add Component
 
 ```bash
-# Input: user_status, user_roles
-# Generates select fields with:
-options: computed(() => enumsStore.state["user_status"])
-itemTitle: "label"
-itemValue: "value"
+wb add:component
 ```
 
-## 🎛️ Generated Schema API
+**What it does:**
 
-The generated schema uses a composable pattern:
+- Adds reusable Vue components
+- Supports folder structure navigation
+- Batch component selection
+- Smart conflict resolution
+
+**Features:**
+
+- 🧩 Component browser
+- 📁 Folder navigation
+- ✅ Bulk selection
+- 🔄 Overwrite handling
+
+## Project Structure
+
+Wakeb CLI expects and creates the following structure:
+
+```
+src/
+├── modules/
+│   ├── users/
+│   │   ├── views/
+│   │   │   ├── Users.vue
+│   │   │   └── UserForm.vue
+│   │   ├── schema/
+│   │   │   └── users.js
+│   │   └── router/
+│   │       └── index.js
+│   └── products/
+│       └── ...
+├── components/
+│   └── common/
+│       ├── forms/
+│       ├── tables/
+│       └── ...
+└── data/
+    └── sidebarLinks.js
+```
+
+## Schema Generation
+
+### Payload Format Support
+
+The CLI can parse various payload formats and generate form schemas:
 
 ```javascript
-import { useUserSchema } from "./schema/user.js";
+// Input payload format
+user.name: John Doe
+user.email: john@example.com
+user.age: 30
+user.active: true
+user.role_id: select
+user.created_at: 2023-05-20
+user.login_time: 14:30
+```
 
-export default {
-  setup() {
-    const schema = useUserSchema({
-      isCreate: true,
-      isView: false,
-    });
+### Generated Schema
 
-    return { schema };
-  },
+```javascript
+export const userSchema = {
+  "user.name": "text",
+  "user.email": "text",
+  "user.age": "number",
+  "user.active": "checkbox",
+  "user.role_id": "select",
+  "user.created_at": "date",
+  "user.login_time": "time",
 };
 ```
 
-## 📝 Field Configuration Options
+### Supported Field Types
 
-Each generated field includes comprehensive configuration:
+- `text` - Text input
+- `textarea` - Multi-line text
+- `select` - Dropdown selection
+- `checkbox` - Boolean checkbox
+- `radio` - Radio buttons
+- `number` - Number input
+- `date` - Date picker
+- `time` - Time picker
+- `password` - Password input
+- `phone` - Phone number
+- `email` - Email input
+- `file` - File upload
+- `image` - Image upload
+- `editor` - Rich text editor
+- `otp` - One-time password
+- `captcha` - Captcha field
+
+## Configuration
+
+### String Utilities
+
+The CLI includes powerful string transformation utilities:
 
 ```javascript
-createTextField({
-  t, // i18n translation function
-  key: "title", // Field key
-  label: "title", // Field label
-  inputStyle: "flat", // Input styling
-  cols: { md: 6, lg: 6 }, // Grid columns
-  value: "", // Default value
-  required: true, // Validation
-  // ... type-specific props
-});
+import { toKebabCase, toCamelCase, toSnakeCase } from "./stringUtils.js";
+
+// Examples
+toKebabCase("UserProfile"); // → 'user-profile'
+toCamelCase("user-profile"); // → 'userProfile'
+toSnakeCase("UserProfile"); // → 'user_profile'
 ```
 
-## 🔄 Router Integration
+### Template System
 
-The tool automatically updates your router configuration:
+- **Modal Layout**: Popup-based CRUD operations
+- **Pages Layout**: Full-page CRUD operations
+- **Placeholder System**: Dynamic content replacement
+- **Component Templates**: Reusable UI components
+
+## Advanced Features
+
+### Auto-routing
+
+Automatically updates `router/index.js` with new routes:
 
 ```javascript
-export default [
-  {
-    path: "/user",
-    name: "user",
-    component: () => import("@/modules/user/views/User.vue"),
-    meta: {
-      is_searchable: true,
-      name: "user",
-    },
+{
+  path: "/users",
+  name: "users",
+  component: () => import("@/modules/users/views/Users.vue"),
+  meta: {
+    is_searchable: true,
+    name: "users",
   },
-];
+}
 ```
 
-## 🛠️ Advanced Configuration
+### Sidebar Integration
 
-### Template Customization
-
-Modify templates in the `templates/` directory:
-
-- `templates/modal/` - Modal-based layouts
-- `templates/pages/` - Page-based layouts
-
-### Field Utilities
-
-The tool generates imports for field utilities:
+Auto-updates `sidebarLinks.js` with navigation:
 
 ```javascript
-import {
-  createTextField,
-  createSelectField,
-  createDateTimeField,
-} from "@/utils/fieldUtils";
+{
+  to: "/users",
+  name: "sidebar.users",
+  permissions: "*",
+  hipath: "icons.users",
+}
 ```
 
-## 🤝 Contributing
+### Help Models & Enums
+
+Support for related data:
+
+```javascript
+// Auto-generated in components
+const tables = ["roles", "departments"];
+const enums = ["status", "priority"];
+
+await Promise.all([
+  enumsStore.getHelpEnums(enums),
+  enumsStore.getHelpModels(tables),
+]);
+```
+
+## Examples
+
+### Creating a User Management Module
+
+```bash
+wb create
+# Module name: users
+# Multiple CRUDs: No
+# Layout: Modal
+# Help models: roles, departments
+# Help enums: status
+# Schema: Yes
+# Sidebar: Yes
+# Icon: users
+```
+
+### Adding Authentication Components
+
+```bash
+wb add:component
+# Select: 📁 auth
+# Choose: LoginForm, RegisterForm, ForgotPassword
+```
+
+### Bulk Module Installation
+
+```bash
+wb add:module
+# Select multiple modules:
+# ✅ authentication
+# ⬜ file-manager
+# ⬜ notifications
+```
+
+## Best Practices
+
+1. **Module Naming**: Use singular names (`user`, not `users`)
+2. **Schema First**: Always define schema before creating views
+3. **Help Models**: Define related models for better UX
+4. **Consistent Icons**: Use consistent icon naming
+5. **Template Reuse**: Leverage existing templates
+
+## Troubleshooting
+
+### Common Issues
+
+**Module already exists**
+
+- Use the overwrite option or choose different name
+
+**Invalid router format**
+
+- Check `router/index.js` syntax
+- Ensure proper export format
+
+**Schema generation fails**
+
+- Verify payload format
+- Check field type mappings
+
+**Component conflicts**
+
+- Use selective installation
+- Handle overwrite prompts
+
+## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see LICENSE file for details
 
-## 🐛 Issues & Support
+## Support
 
-If you encounter any issues or have questions:
-
-- Open an issue on [GitHub Issues](https://github.com/yourusername/kz-create/issues)
-- Check existing issues for solutions
-- Provide detailed reproduction steps
-
-## 🚀 Roadmap
-
-- [ ] TypeScript support
-- [ ] Custom field types
-- [ ] Theme customization
-- [ ] Plugin system
-- [ ] Configuration file support
-- [ ] Test generation
-- [ ] Documentation generation
-
-## 💡 Tips & Best Practices
-
-1. **Use descriptive module names**: `user-management` instead of `user`
-2. **Leverage help models**: Define reusable data sources
-3. **Follow naming conventions**: Use kebab-case for modules
-4. **Test generated schemas**: Always validate form behavior
-5. **Customize templates**: Adapt templates to your project needs
+- 📧 Email: keroloszakaria@wakeb.com
+- 🐛 Issues: [GitHub Issues](https://github.com/keroloszakaria/issues)
+- 📚 Docs: [Documentation](https://keroloszakaria.surge.sh)
 
 ---
 
-Made with ❤️ by the KZ-Create team
+Made with ❤️ by the Wakeb Team

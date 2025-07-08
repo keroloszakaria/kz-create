@@ -1,0 +1,302 @@
+$input-height: 2.875rem;
+$otp-box: 3.5rem;
+$input-radius: 12px;
+
+.label {
+  font-size: 0.875rem;
+  color: rgba(var(--v-theme-dark_700), 1);
+  font-weight: 500;
+}
+
+:deep() {
+  .error-messages {
+    p {
+      color: rgb(var(--v-theme-error));
+      font-size: 12px;
+      min-height: 22px;
+      padding-top: 6px;
+    }
+  }
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    .group-header {
+      color: rgba(var(--v-theme-dark_700), 1);
+      font-weight: 600;
+      font-size: 1rem;
+    }
+  }
+
+  .v-field__prepend-inner {
+    color: rgba(var(--v-theme-dark_500), 1);
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &.required-field {
+      .field-label {
+        position: relative;
+        &::after {
+          content: '*';
+          color: rgba(var(--v-theme-error), 1);
+          position: absolute;
+          margin-inline-start: 4px;
+          font-weight: 500;
+          font-size: 1rem;
+          width: 1px;
+        }
+      }
+    }
+
+    .v-field {
+      overflow: hidden;
+    }
+
+    .field-label {
+      @extend .label;
+    }
+    input {
+      top: 0;
+      height: 100%;
+    }
+
+    .v-input:not(.v-textarea) .v-field__field {
+      height: $input-height;
+    }
+    .v-input:not(.v-radio-group, .v-checkbox) {
+      .v-field {
+        box-shadow: none;
+        border-radius: $input-radius;
+        background-color: rgba(var(--v-theme-dark_white), 1) !important;
+        border: 1px solid rgba(var(--v-theme-dark_100), 1) !important;
+      }
+      .v-field__overlay,
+      .v-field__loader,
+      .v-field__outline {
+        display: none;
+      }
+
+      input::placeholder {
+        color: rgba(var(--v-theme-dark_500), 1);
+      }
+    }
+
+    // Radio
+    .v-input {
+      .v-selection-control-group {
+        display: flex;
+        gap: 1rem;
+        .v-selection-control {
+          display: flex;
+          gap: 4px;
+          &__wrapper {
+            width: 18px;
+            height: 18px;
+          }
+          &__input {
+            width: 18px;
+            height: 18px;
+            &::before,
+            i {
+              color: rgba(var(--v-theme-primary), 1);
+            }
+            .v-icon {
+              opacity: 1;
+            }
+          }
+          .v-label {
+            @extend .label;
+          }
+        }
+      }
+    }
+
+    // Checkbox
+    .v-checkbox {
+      .v-input__control {
+        .v-selection-control {
+          min-height: unset;
+          display: flex;
+          gap: 4px;
+          &__wrapper {
+            width: 18px;
+            height: 18px;
+          }
+          &__input {
+            width: 18px;
+            height: 18px;
+            i {
+              border: 2px solid rgba(var(--v-theme-dark_300), 1) !important;
+              border-radius: 5px !important;
+              font-size: 18px;
+              transition: 0.4s;
+              &::before {
+                content: unset !important;
+              }
+              &.mdi-checkbox-marked,
+              &.mdi-radiobox-marked {
+                background-color: rgba(var(--v-theme-primary), 1);
+                border: none !important;
+
+                &::after {
+                  content: '';
+                  display: block;
+                  box-sizing: border-box;
+                  position: absolute;
+                  top: 0px;
+                  left: 4px;
+                  width: 5px;
+                  height: 10px;
+                  border-width: 0 2px 2px 0;
+                  border-style: solid;
+                  transform-origin: bottom left;
+                  transform: rotate(45deg);
+                  color: #fff;
+                }
+              }
+            }
+          }
+          .v-label {
+            @extend .label;
+            color: #1d1f1f;
+            opacity: 1;
+          }
+        }
+      }
+    }
+
+    // otp
+    &:has(.otp-container) {
+      justify-content: center;
+      .otp-container {
+        display: flex;
+        gap: 1rem;
+        .v-field__field {
+          height: $otp-box;
+          width: $otp-box;
+        }
+        .v-field {
+          transition: all 0.2s ease-in-out;
+        }
+        .v-field--focused {
+          border: 1px solid rgba(var(--v-theme-primary), 1) !important;
+        }
+        .v-field__overlay,
+        .v-field__loader,
+        .v-field__outline {
+          display: none;
+        }
+        input {
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  /*
+  inputStyle = 'flat'
+  inputStyle = 'outlined'
+  inputStyle = 'filled'
+  inputStyle = 'underline'
+  inputStyle = 'viewMode'
+  */
+
+  .field.viewMode {
+    position: relative;
+    padding-inline-start: calc(12px + 4px);
+    gap: 10px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      width: 4px;
+      height: 100%;
+      border-radius: 8px;
+      background-color: rgba(var(--v-theme-dark_100), 1);
+    }
+    .field-label {
+      color: rgba(var(--v-theme-dark_400), 1);
+      &::after {
+        content: unset;
+      }
+    }
+
+    * {
+      min-height: unset !important;
+    }
+    input,
+    textarea {
+      padding: 0;
+      resize: none;
+    }
+    // Select, Autocomplete, Combobox
+    .v-field__input {
+      padding: 0;
+      gap: 0.3rem;
+      .v-select__selection,
+      .v-autocomplete__selection,
+      .v-combobox__selection {
+        margin: 0;
+        &:not(:first-of-type) {
+          &::before {
+            content: ',';
+            margin-inline-end: 0.1rem;
+          }
+        }
+      }
+
+      .v-chip {
+        background-color: transparent;
+        padding: 0;
+        border-radius: 0;
+        font-size: 1rem;
+        *:not(.v-chip__content) {
+          display: none;
+        }
+      }
+    }
+    // Radio
+    .v-selection-control-group {
+      .v-selection-control {
+        opacity: 1;
+        .v-selection-control__wrapper {
+          display: none;
+        }
+        &:not(.v-selection-control--dirty) {
+          display: none;
+        }
+      }
+    }
+
+    // Checkbox {
+    .v-checkbox-btn {
+      opacity: 1;
+      .v-label {
+        color: rgba(var(--v-theme-dark_400), 1) !important;
+      }
+      .v-selection-control__wrapper {
+        display: none;
+      }
+    }
+
+    .v-input__control {
+      .v-field {
+        opacity: 1;
+        padding: 0;
+        background-color: transparent !important;
+        border: none !important;
+        .v-field__field {
+          height: fit-content;
+        }
+        > *:not(.v-field__field) {
+          display: none;
+        }
+      }
+    }
+  }
+}

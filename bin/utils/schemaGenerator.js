@@ -1,3 +1,4 @@
+import { capitalize } from "./stringUtils.js";
 export function generateSchemaFromPayload(
   payloadText,
   crudName,
@@ -114,21 +115,14 @@ export function generateSchemaFromPayload(
     let extraProps = "";
 
     // Set default value based on field type
-    if (isSelect || isComboBox || isRadio) {
+    if (isSelect || isComboBox || isRadio)
       valueLine = isMultipleSelect ? "value: []," : "value: null,";
-    } else if (isCheckbox) {
-      valueLine = "value: false,";
-    } else if (isNumber) {
-      valueLine = "value: 0,";
-    } else if (isDateTime) {
-      valueLine = "value: null,";
-    } else if (isOtp) {
-      valueLine = "value: '',";
-    } else if (isButton) {
-      valueLine = ""; // Buttons don't have values
-    } else {
-      valueLine = 'value: "",';
-    }
+    else if (isCheckbox) valueLine = "value: false,";
+    else if (isNumber) valueLine = "value: 0,";
+    else if (isDateTime) valueLine = "value: null,";
+    else if (isOtp) valueLine = "value: '',";
+    else if (isButton) valueLine = "";
+    else valueLine = 'value: "",';
 
     // Handle select field with model match
     if (isSelect && matchType === "model") {
@@ -257,9 +251,6 @@ export function generateSchemaFromPayload(
     ", "
   )} } from '@/utils/fieldUtils'`;
 
-  // Capitalize function
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
-
   // Generate the final schema code
   const schemaCode = `${imports}
 import { ref, computed } from 'vue'
@@ -283,9 +274,6 @@ export const use${capitalize(
 }
 
 export function generateBasicSchema(crudName) {
-  // Capitalize function
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
-
   // Generate the basic schema code with empty array
   const schemaCode = `import { ref, computed } from "vue";
 import i18n from "@/utils/i18n";

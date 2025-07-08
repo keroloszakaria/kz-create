@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { toCamelCase, toKebabCase } from "./helper.js";
+import { toCamelCase, toKebabCase } from "./stringUtils.js";
 
 export default function updateRouter(modulePath, crudName) {
   const routerPath = path.join(modulePath, "router");

@@ -1,0 +1,12 @@
+.min-h-screen {
+  min-height: 100vh;
+}
+.forget {
+  margin-block: 12px;
+}
+a {
+  color: rgba(var(--v-theme-primary), 1);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
