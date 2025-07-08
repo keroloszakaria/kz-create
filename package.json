@@ -1,6 +1,6 @@
 {
   "name": "wakeb-starter-cli",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A powerful CLI tool for generating CRUD modules, common modules, and components with Vue 3 form schemas, featuring intelligent field detection and automatic schema generation",
   "main": "bin/index.js",
   "bin": {
