@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
 import inquirer from "inquirer";
+import { execSync } from "child_process";
 import { fileURLToPath } from "url";
+import installModuleDependencies from "../utils/installModuleDependencies.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,6 +53,9 @@ export default async function addModule() {
 
     copyFolderRecursive(sourcePath, targetPath);
     console.log(`✅ ${moduleName} module added.`);
+
+    // 👇 تثبيت الـ dependencies بعد الإضافة
+    installModuleDependencies(sourcePath);
   }
 
   console.log("\n🎉 All selected modules have been processed.\n");

@@ -43,6 +43,11 @@
   },
   "homepage": "https://github.com/keroloszakaria/kz-create#readme",
   "dependencies": {
-    "inquirer": "^9.3.7"
+    "axios": "^1.6.0",
+    "inquirer": "^9.3.7",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "vite-plugin-svg-icons": "^2.0.1"
   }
 }
